@@ -20,7 +20,73 @@ namespace Battleships
         // returns: the number of ships sunk by the set of guesses
         public static int Play(string[] ships, string[] guesses)
         {
-            return 0;
+            //get Ships positions
+            Dictionary<string, List<string>> shipsPositions = new Dictionary<string, List<string>>();
+            int sunkShipsCount = 0;
+            List<string> placedCells;
+
+            for (int i = 0; i < ships.Length; i++)
+            {
+                placedCells =  GetShipPlacedCells(ships[i]);   
+                //---------
+                // we can write logic here to check any ship overlapping postions 
+                //----------
+                shipsPositions.Add($"Ship-{i}", placedCells);                
+            }
+
+            //Count sunk ships
+            foreach (var shipPositions in shipsPositions)
+            {
+                if (!shipPositions.Value.Except(guesses).Any())
+                {
+                    sunkShipsCount++;
+                }
+            }
+
+            return sunkShipsCount;
         }
+
+        private static List<string> GetShipPlacedCells(string shipCoordinate)
+        {
+            List<string> placedCells = new List<string>();
+            var firstlastCoordinate = shipCoordinate.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string[] firstPosition = firstlastCoordinate.First().Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lastPosition = firstlastCoordinate.Last().Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+
+            int roStart = Convert.ToInt32(firstPosition.First());
+            int roEnd = Convert.ToInt32(lastPosition.First());            
+
+            int colStart = Convert.ToInt32(firstPosition.Last());
+            int colEnd = Convert.ToInt32(lastPosition.Last());
+
+            //--**Optional logic to manage if ship in reverse position
+            int coordinateHolderTemp;
+            if(roStart > roEnd)
+            {
+                coordinateHolderTemp = roStart;
+                roStart = roEnd;
+                roEnd = coordinateHolderTemp;
+            }
+            if (colStart > colEnd)
+            {
+                coordinateHolderTemp = colStart;
+                colStart = colEnd;
+                colEnd = coordinateHolderTemp;
+            }
+            //----**
+
+            //Get all cells a ship placed
+            for (int ro = roStart; ro <= roEnd; ro++)
+            {
+                for (int col = colStart; col <= colEnd; col++)
+                {
+                    placedCells.Add($"{ro}:{col}");
+                }
+            }
+
+            return placedCells;
+        }
+        
     }
 }
